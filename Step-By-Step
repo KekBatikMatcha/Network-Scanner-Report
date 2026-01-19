@@ -1,0 +1,164 @@
+NET SCANNER REPORT — STEP-BY-STEP IMPLEMENTATION GUIDE
+=================================================
+
+✅ IMPORTANT (Ethics & Permission)
+---------------------------------
+Use this project ONLY on networks/hosts you own or where you have explicit permission to test.
+Unauthorized scanning can be illegal and can break policies.
+
+This guide is written to match a typical “Net Scanner Report” project you previously built:
+- Run a scan (single IP or CIDR range)
+- Show results in a report page (Alive Hosts / Open Ports / Risk Findings)
+- Allow export (JSON / HTML) if included
+
+-------------------------------------------------
+1) PROJECT FOLDER SETUP
+-------------------------------------------------
+1. Create a folder:
+   net-scanner-report/
+
+2. Put your project files inside (example structure):
+   net-scanner-report/
+     scanner.php        (scan UI + form)
+     scan.php           (runs scan logic / executes scanner)
+     report.php         (shows results)
+     actions/ or includes/ (optional)
+     exports/ or reports/  (optional output folder)
+     README.md          (optional but recommended)
+
+3. If your code writes reports to disk, create writable folders:
+   - exports/
+   - reports/
+   - tmp/
+
+-------------------------------------------------
+2) REQUIREMENTS (LOCAL ENVIRONMENT)
+-------------------------------------------------
+A) If your project is PHP (web-based)
+- XAMPP / WAMP / Laragon (Windows), or LAMP (Linux/Mac)
+- PHP 8.x recommended
+- A browser (Chrome recommended)
+
+B) If your scan relies on Nmap
+- Install Nmap
+- Ensure “nmap” is available in PATH
+
+How to verify Nmap:
+- Open terminal / cmd:
+  nmap --version
+
+If it prints version info → OK.
+If it says “not recognized / not found” → install or add to PATH.
+
+-------------------------------------------------
+3) RUN LOCALLY (XAMPP) — PHP WEB VERSION
+-------------------------------------------------
+1. Install XAMPP
+2. Copy your project folder into:
+   C:\xampp\htdocs\net-scanner-report\
+
+3. Start XAMPP Control Panel:
+   - Start Apache
+   - (MySQL not required unless your project stores data in DB)
+
+4. Open in browser:
+   http://localhost/net-scanner-report/
+
+5. You should see your scanner page (scanner.php or index.php)
+
+-------------------------------------------------
+4) HOW TO USE THE SCANNER (USER FLOW)
+-------------------------------------------------
+1. Enter target:
+   - Single host: 192.168.1.10
+   - Range/CIDR: 192.168.1.0/24
+
+2. Choose scan mode (if your UI has it):
+   - quick / normal / deep
+   - timing T3/T4/T5 (if included)
+
+3. Click “Scan”
+4. Wait for results
+5. Report page should show:
+   - Alive hosts count
+   - Open ports count
+   - Risk findings count
+   - Per-host details (open ports, flags)
+6. Export if supported:
+   - Download JSON
+   - HTML export
+
+-------------------------------------------------
+5) BASIC SECURITY HARDENING (RECOMMENDED)
+-------------------------------------------------
+To keep your project safe and professional:
+
+A) Validate target input
+- Allow only:
+  - IPv4 address (e.g., 192.168.1.10)
+  - CIDR (e.g., 192.168.1.0/24)
+- Block dangerous characters: ; & | ` $ ( ) < >
+
+B) Use escapeshellarg in PHP
+- When passing user input into shell commands:
+  escapeshellarg($target)
+
+C) Use timeouts
+- Prevent scans from running too long
+
+D) Save outputs safely
+- Write reports to a specific folder
+- Use generated filenames (not user-provided raw filenames)
+
+-------------------------------------------------
+6) COMMON FIXES (BASED ON YOUR PAST ISSUES)
+-------------------------------------------------
+Problem: “nmap is not installed or not available in PATH.”
+Fix:
+1) Install Nmap
+2) Add Nmap directory to PATH
+3) Restart terminal/PC
+4) Verify: nmap --version
+
+Problem: Scan returns “0 open ports” even when hosts are alive
+Possible causes:
+- Firewall blocking probes
+- Wrong port range
+- Limited privileges
+- Target host is not exposing services
+
+Problem: Report page is blank / no results
+- Ensure scan.php writes output to:
+  - session
+  - JSON file
+  - or database
+- Ensure report.php reads from the same location
+
+-------------------------------------------------
+7) DEPLOYING / UPLOADING TO GITHUB
+-------------------------------------------------
+1) Initialize git:
+   git init
+   git add .
+   git commit -m "Initial commit"
+
+2) Create GitHub repo: net-scanner-report
+
+3) Link and push:
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/net-scanner-report.git
+   git push -u origin main
+
+-------------------------------------------------
+8) ADD A CLEAN DISCLAIMER (FOR README)
+-------------------------------------------------
+Add this in README.md:
+
+Disclaimer:
+This project is for educational purposes and authorized security testing only.
+Do not scan networks or systems without explicit permission.
+
+-------------------------------------------------
+DONE ✅
+If you want, paste your current file list (or upload scan.php/report.php/scanner.php),
+and I will tailor this guide to EXACTLY match your code flow + file names.
