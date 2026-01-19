@@ -1,0 +1,35 @@
+{
+    "meta": {
+        "target": "192.168.1.0/24",
+        "timestamp": "2026-01-12 06:34:28",
+        "tool": "nmap",
+        "mode": "normal",
+        "timing": "T3",
+        "top_ports": 100,
+        "service_detection": false,
+        "notes": "Use only on authorized networks."
+    },
+    "summary": {
+        "alive_hosts": 2,
+        "open_ports_total": 0,
+        "risk_findings": 0
+    },
+    "hosts": [
+        {
+            "ip": "192.168.1.201",
+            "hostname": null,
+            "ports": [],
+            "risk_flags": []
+        },
+        {
+            "ip": "192.168.1.202",
+            "hostname": null,
+            "ports": [],
+            "risk_flags": []
+        }
+    ],
+    "raw": {
+        "discover_cmd": "nmap -sn -T3 -PS80,443,22 -PA80,443 \"192.168.1.0/24\"",
+        "discover_output": "Starting Nmap 7.98 ( https://nmap.org ) at 2026-01-12 13:33 +0800\nNmap scan report for 192.168.1.201\nHost is up (0.031s latency).\nNmap scan report for 192.168.1.202\nHost is up (0.029s latency).\nNmap done: 256 IP addresses (2 hosts up) scanned in 45.52 seconds"
+    }
+}

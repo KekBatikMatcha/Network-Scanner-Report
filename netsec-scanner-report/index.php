@@ -1,0 +1,159 @@
+<?php
+// index.php
+$recent = glob(__DIR__ . "/reports/*.json");
+rsort($recent);
+$recent = array_slice($recent, 0, 8);
+
+function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+?>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>NetSec Scanner Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <header class="top">
+    <div class="container top-inner">
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <div class="brand-title">NetSec Scanner</div>
+          <div class="brand-sub">Network Discovery • Port Scan • Security Report</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a class="btn ghost" href="https://nmap.org/" target="_blank" rel="noreferrer">Requires Nmap</a>
+        <a class="btn" href="#recent">Recent Reports</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-left">
+        <div class="kicker">CYBERSECURITY • NETWORK</div>
+        <h1>Scan your subnet & generate a clean security report.</h1>
+        <p class="lead">
+          Discover live hosts, scan top ports, and auto-flag risky services (Telnet/SMB/FTP, etc).
+          Designed for lab / authorized environments.
+        </p>
+
+        <div class="note">
+          <b>Default safety:</b> only private ranges allowed (10.x / 172.16-31.x / 192.168.x).
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <form class="card" action="scan.php" method="POST">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Start Scan</div>
+              <div class="card-sub">Generate HTML + JSON report</div>
+            </div>
+            <div class="chip">v1.0</div>
+          </div>
+
+          <label class="field">
+            <span>Target Subnet (CIDR)</span>
+            <input name="target" required placeholder="e.g. 192.168.1.0/24" value="192.168.1.0/24"/>
+            <small>Tip: Use /24 for home networks. Keep it small for faster results.</small>
+          </label>
+
+          <div class="grid2">
+            <label class="field">
+              <span>Scan Mode</span>
+              <select name="mode">
+                <option value="quick">Quick (Top 50 ports, faster)</option>
+                <option value="normal" selected>Normal (Top 100 ports)</option>
+                <option value="deep">Deep (Top 100 + service detection)</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Timeout</span>
+              <select name="timing">
+                <option value="T3" selected>Balanced (T3)</option>
+                <option value="T4">Faster (T4)</option>
+                <option value="T2">Stealthy (T2)</option>
+              </select>
+              <small>Higher is faster but noisier.</small>
+            </label>
+          </div>
+
+          <label class="check">
+            <input type="checkbox" name="export_json" checked>
+            <span>Export JSON alongside HTML report</span>
+          </label>
+
+          <label class="check">
+            <input type="checkbox" name="allow_non_private">
+            <span>Allow non-private ranges (NOT recommended)</span>
+          </label>
+
+          <button class="btn primary w100" type="submit">
+            <span class="spinner" aria-hidden="true"></span>
+            Run Scan
+          </button>
+
+          <div class="hint">
+            This tool uses <b>nmap</b> on the server. Make sure it’s installed and allowed.
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="recent" class="section">
+      <div class="section-head">
+        <div>
+          <h2>Recent Reports</h2>
+          <p>Click to view the generated report pages.</p>
+        </div>
+      </div>
+
+      <?php if(empty($recent)): ?>
+        <div class="empty">No reports yet. Run your first scan.</div>
+      <?php else: ?>
+        <div class="recent-grid">
+          <?php foreach($recent as $jsonPath):
+            $id = basename($jsonPath, ".json");
+            $data = json_decode(file_get_contents($jsonPath), true);
+            $target = $data['meta']['target'] ?? '—';
+            $ts = $data['meta']['timestamp'] ?? '';
+            $alive = $data['summary']['alive_hosts'] ?? 0;
+            $open = $data['summary']['open_ports_total'] ?? 0;
+          ?>
+            <a class="recent-card" href="report.php?id=<?=h($id)?>">
+              <div class="rc-top">
+                <div class="rc-title"><?=h($target)?></div>
+                <div class="rc-badge"><?=h($alive)?> hosts</div>
+              </div>
+              <div class="rc-sub"><?=h($ts)?></div>
+              <div class="rc-metrics">
+                <div class="m"><b><?=h($open)?></b><span>Open ports</span></div>
+                <div class="m"><b><?=h($data['summary']['risk_findings'] ?? 0)?></b><span>Risk flags</span></div>
+              </div>
+              <div class="rc-link">Open report →</div>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <div>© <?=date('Y')?> Zee • NetSec Scanner Report</div>
+    <div class="muted">Use only on networks you own / have permission to test.</div>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
